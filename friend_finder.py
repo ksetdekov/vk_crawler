@@ -1,26 +1,21 @@
+import json
 import sqlite3
 import ssl
 import urllib.request
 
 from hidden import token
-import json
-import requests
+
 
 # 'user_id':'1631159'
-acct = '1631159'
-resp = requests.get(
-    f'https://api.vk.com/method/friends.get?user_id={acct}&fields=country,bdate,sex&access_token={token}&v=5.103')
+# acct = '1631159'
+# resp = requests.get(
+#     f'https://api.vk.com/method/friends.get?user_id={acct}&fields=country,bdate,sex&access_token={token}&v=5.103')
 
 
 def friend_url(user, secret=token):
     return f'''https://api.vk.com/method/friends.get?user_id={user}\
 &fields=country,bdate,sex&access_token={secret}&v=5.103'''
 
-
-jsontype = resp.json()
-print(json.dumps(jsontype, indent=4))
-print(jsontype['response']['items'][1]['country'])
-print(jsontype['response']['count'])
 
 conn = sqlite3.connect('friends.sqlite')  # friends db
 cur = conn.cursor()
@@ -31,7 +26,6 @@ cur.execute('''CREATE TABLE IF NOT EXISTS People (id INTEGER PRIMARY KEY,
                                                     last_name TEXT,
                                                     sex INTEGER,
                                                     country_id INTEGER,
-                                                    INTEGER,
                                                     bdate TEXT,
                                                     retrieved INTEGER)''')
 cur.execute('''CREATE TABLE IF NOT EXISTS Follows
@@ -92,9 +86,14 @@ while True:
 
     # if no users in json
     if 'response' not in js:
-        print('Incorrect JSON received, no response tag')
-        print(json.dumps(js, indent=4))
-        continue
+        if js['error']['error_code'] == 18:
+            print('Deleted user')
+            cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))
+            continue
+        else:
+            print('Incorrect JSON received, no response tag')
+            print(json.dumps(js, indent=4))
+            continue
 
     cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))
     # loop over friends
@@ -102,6 +101,17 @@ while True:
     countold = 0
     for u in js['response']['items']:
         friend = u['id']
+        first_name = u['first_name']
+        last_name = u['last_name']
+        sex = u['sex']
+        try:
+            country_id = u['country']['id']
+        except KeyError:
+            country_id = None
+        try:
+            birth_date = u['bdate']
+        except KeyError:
+            birth_date = None
         print(friend, u['first_name'], u['last_name'])
         cur.execute('SELECT id FROM People WHERE vk_id = ? LIMIT 1',
                     (friend,))
@@ -109,8 +119,9 @@ while True:
             friend_id = cur.fetchone()[0]
             countold = countold + 1
         except TypeError:
-            cur.execute('''INSERT OR IGNORE INTO People (vk_id, retrieved)
-                        VALUES (?, 0)''', (friend,))
+            cur.execute('''INSERT OR IGNORE INTO People
+            (vk_id, retrieved, first_name, last_name, sex, country_id, bdate)
+            VALUES (?, 0, ?, ?, ?, ?, ?)''', (friend, first_name, last_name, sex, country_id, birth_date))
             conn.commit()
             if cur.rowcount != 1:
                 print('Error inserting account:', friend)

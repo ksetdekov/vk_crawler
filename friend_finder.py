@@ -36,8 +36,9 @@ ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
-while True:
-    acct = input('Enter a Vk id, or quit: ')
+count = 100
+for i in range(count):
+    acct = ''
     if acct == 'quit':
         break
     if len(acct) < 1:
@@ -112,7 +113,7 @@ while True:
             birth_date = u['bdate']
         except KeyError:
             birth_date = None
-        print(friend, u['first_name'], u['last_name'])
+        # print(friend, u['first_name'], u['last_name'])
         cur.execute('SELECT id FROM People WHERE vk_id = ? LIMIT 1',
                     (friend,))
         try:

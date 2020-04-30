@@ -24,25 +24,25 @@ while True:
     if acct == 'quit':
         break
     if len(acct) < 1:
-        cur.execute('SELECT id, name FROM People WHERE retrieved=0 LIMIT 1')
+        cur.execute('SELECT id, name FROM People WHERE retrieved=0 LIMIT 1')  # get id and name
         try:
             (u_id, acct) = cur.fetchone()
         except:
             print('No unretrieved Twitter accounts found')
             continue
     else:
-        cur.execute('SELECT id FROM People WHERE name = ? LIMIT 1',
+        cur.execute('SELECT id FROM People WHERE name = ? LIMIT 1',  # check if there is that person
                     (acct,))
         try:
             u_id = cur.fetchone()[0]
         except:
             cur.execute('''INSERT OR IGNORE INTO People
                         (name, retrieved) VALUES (?, 0)''', (acct,))
-            conn.commit()
+            conn.commit()  # if person not in the table, put him there and mark not retrieved
             if cur.rowcount != 1:
                 print('Error inserting account:', acct)
                 continue
-            u_id = cur.lastrowid
+            u_id = cur.lastrowid  # id of the user
 
     url = twurl.augment(TWITTER_URL, {'screen_name': acct, 'count': '100'})
     print('Retrieving account', acct)
@@ -56,7 +56,7 @@ while True:
     headers = dict(connection.getheaders())
 
     print('Remaining', headers['x-rate-limit-remaining'])
-
+    # if incorrect json recieved
     try:
         js = json.loads(data)
     except:
@@ -66,14 +66,14 @@ while True:
 
     # Debugging
     # print(json.dumps(js, indent=4))
-
+    # if no usert in json
     if 'users' not in js:
         print('Incorrect JSON received')
         print(json.dumps(js, indent=4))
         continue
 
     cur.execute('UPDATE People SET retrieved=1 WHERE name = ?', (acct,))
-
+    # loop over friends
     countnew = 0
     countold = 0
     for u in js['users']:

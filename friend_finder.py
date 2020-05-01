@@ -39,6 +39,8 @@ ctx.verify_mode = ssl.CERT_NONE
 count = 100
 for i in range(count):
     acct = ''
+    # while True:
+    #     acct = input('Enter a Vk id, or quit: ')
     if acct == 'quit':
         break
     if len(acct) < 1:
@@ -89,6 +91,10 @@ for i in range(count):
     if 'response' not in js:
         if js['error']['error_code'] == 18:
             print('Deleted user')
+            cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))
+            continue
+        elif js['error']['error_code'] == 30:
+            print('Private account')
             cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))
             continue
         else:

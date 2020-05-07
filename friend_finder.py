@@ -36,7 +36,7 @@ ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
-count = 100
+count = 1
 for i in range(count):
     acct = ''
     # while True:
@@ -44,7 +44,8 @@ for i in range(count):
     if acct == 'quit':
         break
     if len(acct) < 1:
-        cur.execute('SELECT id, vk_id FROM People WHERE retrieved=0 LIMIT 1')  # get id and name
+        cur.execute('''SELECT id, vk_id FROM People WHERE 
+                        retrieved=0 AND country_id<>1 ORDER BY RANDOM() LIMIT 1''')  # get id and name
         try:
             (u_id, acct) = cur.fetchone()
         except TypeError:

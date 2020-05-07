@@ -16,3 +16,21 @@ Tool to collect data for analysis about friends from open public data of social 
 1. For it to work, ir requires an App to be created inside a Developer section of the website https://vk.com/dev and https://vk.com/apps?act=manage
 2. How I received an authorisation token  https://oauth.vk.com/authorize?client_id=IDприложения&scope=friends,offline&redirect_uri=https://oauth.vk.com/blank.html&display=page&v=5.21&response_type=token
 3. One of the guides I used  https://habr.com/ru/post/221251/
+
+## Example of data collected:
+**People** table
+
+![People_table](img/people.PNG)
+
+**Follows** table
+
+![Follows_table](img/follows.PNG)
+
+from_id | to_id
+------------ | -------------
+1 | 2
+1 | 3
+1 | 4
+1 | 5
+1 | 6
+1 | 7

@@ -24,8 +24,6 @@ Tool to collect data for analysis about friends from open public data of social 
 
 **Follows** table
 
-![Follows_table](img/follows.PNG)
-
 from_id | to_id
 ------------ | -------------
 1 | 2

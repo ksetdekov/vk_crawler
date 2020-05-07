@@ -97,6 +97,10 @@ for i in range(count):
             print('Private account')
             cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))
             continue
+        elif js['error']['error_code'] == 15:
+            print('You are in users blacklist')
+            cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))
+            continue
         else:
             print('Incorrect JSON received, no response tag')
             print(json.dumps(js, indent=4))

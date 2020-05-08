@@ -17,8 +17,8 @@ def friend_url(user, secret=token):
 &fields=country,bdate,sex&access_token={secret}&v=5.103'''
 
 
-def countries_url(country_id, secret=token):
-    return f'''https://api.vk.com/method/database.getCountriesById?country_ids={country_id}\
+def countries_url(vk_country_id, secret=token):
+    return f'''https://api.vk.com/method/database.getCountriesById?country_ids={vk_country_id}\
 &access_token={secret}&v=5.103'''
 
 

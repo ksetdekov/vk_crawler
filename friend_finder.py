@@ -17,6 +17,16 @@ def friend_url(user, secret=token):
 &fields=country,bdate,sex&access_token={secret}&v=5.103'''
 
 
+def countries_url(country_id, secret=token):
+    return f'''https://api.vk.com/method/database.getCountriesById?country_ids={country_id}\
+&access_token={secret}&v=5.103'''
+
+
+countries_list = list()
+for i in range(1, 238):
+    countries_list.append(i)
+countries_url(','.join(map(str, countries_list)))
+
 conn = sqlite3.connect('friends.sqlite')  # friends db
 cur = conn.cursor()
 
@@ -36,7 +46,7 @@ ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
-count = 1
+count = 10
 countries = range(1, 238)
 for k in countries:
     for i in range(count):

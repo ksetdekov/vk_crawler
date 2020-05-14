@@ -26,9 +26,12 @@ conn = sqlite3.connect('clean.sqlite')  # cleaned db for connection and true cou
 cur = conn.cursor()
 
 cur.execute('''DROP TABLE IF EXISTS Countries ''')
+cur.execute('''DROP TABLE IF EXISTS True_countries ''')
 
 cur.execute('''CREATE TABLE IF NOT EXISTS Countries
             (id INTEGER PRIMARY KEY, name TEXT UNIQUE)''')
+cur.execute('''CREATE TABLE IF NOT EXISTS True_countries
+            (id INTEGER PRIMARY KEY, tc INTEGER)''')
 
 try:
     connection = urllib.request.urlopen(url, context=ctx)
@@ -83,7 +86,16 @@ cur_total = conn_f.cursor()
 cur_total.execute('''SELECT id, vk_id, first_name, last_name, sex, country_id, bdate FROM People WHERE retrieved = 1''')
 
 for retrieved in cur_total:
-    print(retrieved[2:4], true_country(retrieved[0]))
+    person_id = retrieved[0]
+    true_country_res = true_country(person_id)
+
+    print(retrieved[2:4], true_country_res)
+    cur.execute('''INSERT OR IGNORE INTO True_countries
+                    (id, tc)
+                    VALUES (?, ?)''', (person_id, true_country_res))
+
+
+conn.commit()
 
 cur.close()
 cur_f.close()

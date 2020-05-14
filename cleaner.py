@@ -94,9 +94,12 @@ for retrieved in cur_total:
                     (id, tc)
                     VALUES (?, ?)''', (person_id, true_country_res))
 
-
 conn.commit()
 
 cur.close()
 cur_f.close()
 cur_total.close()
+
+# todo convert to a graph
+# todo study поиск в ширину - grokking algorithms
+# todo implement поиск в ширину

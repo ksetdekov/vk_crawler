@@ -45,24 +45,46 @@ except Exception as err:
     quit()
 
 # print(js)
+n = 0
 for c in js['response']:
     cid = c['id']
     country_name = c['title']
     if country_name == '':
         continue
-    print(cid, country_name)
+    # print(cid, country_name)
+    n += 1
     cur.execute('''INSERT OR IGNORE INTO Countries
                     (id, name)
                     VALUES (?, ?)''', (cid, country_name))
 conn.commit()
+print(n, 'countries imported')
+
+# done - write a function, that finds the most common friend's countries
+
+conn_f = sqlite3.connect('friends.sqlite')  # cleaned db for connection and true country analysis
+cur_f = conn_f.cursor()
 
 
-# todo - write a function, that finds the most common friend's countris
-
-def true_country(id):
-    '''SELECT country_id FROM People JOIN Follows On People.id = Follows.to_id
-	WHERE Follows.from_id = 4185323
-	and country_id NOTNULL
+def true_country(people_id):
+    cur_f.execute('''SELECT country_id FROM People JOIN Follows On People.id = Follows.to_id
+    WHERE Follows.from_id = ?
+    and country_id NOTNULL
     GROUP BY country_id
     ORDER BY COUNT(*) DESC
-	LIMIT 1;'''
+    LIMIT 1;''', (people_id,))
+    try:
+        result = cur_f.fetchone()[0]
+    except TypeError:
+        result = None
+    return result
+
+
+cur_total = conn_f.cursor()
+cur_total.execute('''SELECT id, vk_id, first_name, last_name, sex, country_id, bdate FROM People WHERE retrieved = 1''')
+
+for retrieved in cur_total:
+    print(retrieved[2:4], true_country(retrieved[0]))
+
+cur.close()
+cur_f.close()
+cur_total.close()

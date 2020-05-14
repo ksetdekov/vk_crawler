@@ -1,0 +1,68 @@
+# done create a list of countries:
+import json
+import sqlite3
+import ssl
+import urllib.request
+
+from hidden import token
+
+
+def countries_url(vk_country_id, secret=token):
+    return f'''https://api.vk.com/method/database.getCountriesById?country_ids={vk_country_id}\
+&access_token={secret}&v=5.103'''
+
+
+# Ignore SSL certificate errors
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
+
+countries_list = list()
+for i in range(1, 500):
+    countries_list.append(i)
+url = countries_url(','.join(map(str, countries_list)))
+
+conn = sqlite3.connect('clean.sqlite')  # cleaned db for connection and true country analysis
+cur = conn.cursor()
+
+cur.execute('''DROP TABLE IF EXISTS Countries ''')
+
+cur.execute('''CREATE TABLE IF NOT EXISTS Countries
+            (id INTEGER PRIMARY KEY, name TEXT UNIQUE)''')
+
+try:
+    connection = urllib.request.urlopen(url, context=ctx)
+except Exception as err:
+    print('Failed to Retrieve', err)
+    quit()
+
+data = connection.read().decode()
+try:
+    js = json.loads(data)
+except Exception as err:
+    print('Unable to parse json', err)
+    print(data)
+    quit()
+
+# print(js)
+for c in js['response']:
+    cid = c['id']
+    country_name = c['title']
+    if country_name == '':
+        continue
+    print(cid, country_name)
+    cur.execute('''INSERT OR IGNORE INTO Countries
+                    (id, name)
+                    VALUES (?, ?)''', (cid, country_name))
+conn.commit()
+
+
+# todo - write a function, that finds the most common friend's countris
+
+def true_country(id):
+    '''SELECT country_id FROM People JOIN Follows On People.id = Follows.to_id
+	WHERE Follows.from_id = 4185323
+	and country_id NOTNULL
+    GROUP BY country_id
+    ORDER BY COUNT(*) DESC
+	LIMIT 1;'''

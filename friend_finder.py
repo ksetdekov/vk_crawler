@@ -118,6 +118,7 @@ for i in range(count):
         elif js['error']['error_code'] == 30:
             print('Private account')
             cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))
+            time.sleep(0.05)
             continue
         elif js['error']['error_code'] == 15:
             print('You are in users blacklist')
@@ -126,8 +127,8 @@ for i in range(count):
         else:
             print('Incorrect JSON received, no response tag')
             print(json.dumps(js, indent=4))
-            time.sleep(1)
-            break
+            time.sleep(0.1)
+            continue
 
     cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))
     # loop over friends

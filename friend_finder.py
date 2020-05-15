@@ -124,6 +124,10 @@ for i in range(count):
             print('You are in users blacklist')
             cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))
             continue
+        elif js['error']['error_code'] == 29:
+            print('Rate limit reached')
+            cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))
+            break
         else:
             print('Incorrect JSON received, no response tag')
             print(json.dumps(js, indent=4))

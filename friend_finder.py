@@ -46,7 +46,7 @@ ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
-count = 2
+count = 20
 countries = range(1, 238)
 for k in countries:
     for i in range(count):
@@ -73,7 +73,7 @@ for k in countries:
             except TypeError:
                 cur.execute('''INSERT OR IGNORE INTO People
                             (vk_id, retrieved) VALUES (?, 0)''', (acct,))
-                conn.commit()  # if person not in the table, put him there and mark not retrieved
+                # conn.commit()  # if person not in the table, put him there and mark not retrieved
                 if cur.rowcount != 1:
                     print('Error inserting account:', acct)
                     continue
@@ -148,7 +148,7 @@ for k in countries:
                 cur.execute('''INSERT OR IGNORE INTO People
                 (vk_id, retrieved, first_name, last_name, sex, country_id, bdate)
                 VALUES (?, 0, ?, ?, ?, ?, ?)''', (friend, first_name, last_name, sex, country_id, birth_date))
-                conn.commit()
+                # conn.commit()
                 if cur.rowcount != 1:
                     print('Error inserting account:', friend)
                     continue

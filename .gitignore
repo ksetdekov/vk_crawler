@@ -129,3 +129,8 @@ dmypy.json
 .pyre/
 /hidden.py
 /friends.sqlite
+.Rproj.user
+/.RData
+/.Rhistory
+/vk_crawler.Rproj
+/clean

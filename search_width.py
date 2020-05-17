@@ -6,10 +6,10 @@ cur = conn.cursor()
 person_cur = conn.cursor()
 
 
-def person_is_seller(pers_id, country):
+def person_is_resident(pers_id, country_id):
     person_cur.execute('''SELECT tc FROM True_countries WHERE id = ?''', (pers_id,))
     tc = person_cur.fetchone()[0]
-    return tc == country
+    return tc == country_id
 
 
 graph = dict()
@@ -33,7 +33,7 @@ def search(identifier, country_to_search):
         person = search_queue.popleft()
         # Only search this person if you haven't already searched them.
         if person not in searched:
-            if person_is_seller(person, country_to_search):
+            if person_is_resident(person, country_to_search):
                 return person
             else:
                 search_queue += graph[person]
@@ -42,26 +42,7 @@ def search(identifier, country_to_search):
     return False
 
 
-end = search(1, 220)
-print(end)
-
-
-# def find_path(graph, start, end, path=[]):
-#     path = path + [start]
-#     if start == end:
-#         return path
-#     if start not in graph:
-#         return None
-#     for node in graph[start]:
-#         if node not in path:
-#             newpath = find_path(graph, node, end, path)
-#             if newpath: return newpath
-#     return None
-
-
-# find_path(graph, 1, end)
-
-def bfs_shortest_path(graph, start, goal):
+def bfs_shortest_path(graph_inp, start, goal):
     # keep track of explored nodes
     explored = []
     # keep track of all the paths to be checked
@@ -78,7 +59,7 @@ def bfs_shortest_path(graph, start, goal):
         # get the last node from the path
         node = path[-1]
         if node not in explored:
-            neighbours = graph[node]
+            neighbours = graph_inp[node]
             # go through all neighbour nodes, construct a new path and
             # push it into the queue
             for neighbour in neighbours:
@@ -96,4 +77,27 @@ def bfs_shortest_path(graph, start, goal):
     return "So sorry, but a connecting path doesn't exist :("
 
 
-print(len(bfs_shortest_path(graph, 1, end)) - 1)
+cur.execute('''SELECT id FROM Countries''')
+all_countries = cur.fetchall()
+list_to_search = [item for t in all_countries for item in t]
+
+
+def handshakes(country_to, start=1):
+    end = search(start, country_to)
+    distance = len(bfs_shortest_path(graph, start, end)) - 1
+    # print(distance)
+    return distance
+
+
+cur.execute('''CREATE TABLE IF NOT EXISTS Steps
+            (id INTEGER PRIMARY KEY, steps INTEGER)''')
+for country in list_to_search:
+    steps = handshakes(country)
+    print(country, steps)
+    cur.execute('''INSERT OR IGNORE INTO Steps
+    (id, steps)
+    VALUES (?, ?)''', (country, steps))
+    conn.commit()
+
+cur.close()
+person_cur.close()

@@ -101,5 +101,5 @@ cur_f.close()
 cur_total.close()
 
 # todo convert to a graph
-# todo study поиск в ширину - grokking algorithms
+
 # todo implement поиск в ширину

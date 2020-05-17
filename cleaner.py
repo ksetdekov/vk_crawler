@@ -27,11 +27,14 @@ cur = conn.cursor()
 
 cur.execute('''DROP TABLE IF EXISTS Countries ''')
 cur.execute('''DROP TABLE IF EXISTS True_countries ''')
+cur.execute('''DROP TABLE IF EXISTS Follows_short ''')
 
 cur.execute('''CREATE TABLE IF NOT EXISTS Countries
             (id INTEGER PRIMARY KEY, name TEXT UNIQUE)''')
 cur.execute('''CREATE TABLE IF NOT EXISTS True_countries
             (id INTEGER PRIMARY KEY, tc INTEGER)''')
+cur.execute('''CREATE TABLE IF NOT EXISTS Follows_short
+            (from_id INTEGER, to_id INTEGER, UNIQUE(from_id, to_id))''')
 
 try:
     connection = urllib.request.urlopen(url, context=ctx)
@@ -95,9 +98,20 @@ for retrieved in cur_total:
                     VALUES (?, ?)''', (person_id, true_country_res))
 
 conn.commit()
-
-cur.close()
 cur_f.close()
+
+# select those from full follows, who are in the true countries list
+
+cur_total.execute('''SELECT from_id, to_id FROM Follows join People On People.id = Follows.to_id WHERE retrieved = 1''')
+for retrieved in cur_total:
+    (u_id, friend_id) = retrieved
+    print(u_id, friend_id)
+    cur.execute('''INSERT OR IGNORE INTO Follows_short
+                    (from_id, to_id)
+                    VALUES (?, ?)''', (u_id, friend_id))
+
+conn.commit()
+cur.close()
 cur_total.close()
 
 # todo convert to a graph

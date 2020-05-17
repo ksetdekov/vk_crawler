@@ -1,6 +1,7 @@
 import json
 import sqlite3
 import ssl
+import time
 import urllib.request
 
 from hidden import token
@@ -46,8 +47,26 @@ ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
-count = 20
-countries = range(1, 238)
+start = time.time()
+mode = input('enter 1 for consecutive mode, 2 for country drill down')
+try:
+    mode = int(mode)
+except ValueError:
+    print('Enter 1 or 2')
+    exit()
+
+countries = range(1, 2)
+count = 5000
+
+if mode == 1:
+    print(count, countries)
+    print(mode, 'mode')
+elif mode == 2:
+    count = 20
+    countries = range(1, 238)
+    print(count, countries)
+    print(mode, 'mode')
+
 for k in countries:
     for i in range(count):
         acct = ''
@@ -56,8 +75,12 @@ for k in countries:
         if acct == 'quit':
             break
         if len(acct) < 1:
-            cur.execute(f'''SELECT id, vk_id , country_id FROM People WHERE 
-                            retrieved=0 AND country_id={k} ORDER BY RANDOM() LIMIT 1''')  # get id and name
+            if mode == 1:  # get id and name next
+                cur.execute(f'''SELECT id, vk_id , country_id FROM People WHERE 
+                                retrieved=0 LIMIT 1''')
+            elif mode == 2:  # get id and name from rand
+                cur.execute(f'''SELECT id, vk_id , country_id FROM People WHERE 
+                                retrieved=0 AND country_id={k} ORDER BY RANDOM() LIMIT 1''')
             try:
                 (u_id, acct, current_country) = cur.fetchone()
                 print('country ID is', current_country, 'iteration', i)
@@ -80,8 +103,16 @@ for k in countries:
                 u_id = cur.lastrowid  # id of the user
 
         url = friend_url(acct)
+
+        cur_time = time.time()
+        if cur_time - start < 0.33:
+            pause = cur_time - start + 0.07
+            # print('slept for', pause)
+            time.sleep(pause)
+
         print('Retrieving account', acct)
         try:
+            start = time.time()
             connection = urllib.request.urlopen(url, context=ctx)
         except Exception as err:
             print('Failed to Retrieve', err)
@@ -110,14 +141,20 @@ for k in countries:
             elif js['error']['error_code'] == 30:
                 print('Private account')
                 cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))
+                time.sleep(0.05)
                 continue
             elif js['error']['error_code'] == 15:
                 print('You are in users blacklist')
                 cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))
                 continue
+            elif js['error']['error_code'] == 29:
+                print('Rate limit reached')
+                cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))
+                break
             else:
                 print('Incorrect JSON received, no response tag')
                 print(json.dumps(js, indent=4))
+                time.sleep(0.1)
                 continue
 
         cur.execute('UPDATE People SET retrieved=1 WHERE vk_id = ?', (acct,))

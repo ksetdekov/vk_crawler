@@ -129,4 +129,3 @@ dmypy.json
 .pyre/
 /hidden.py
 /friends.sqlite
-/clean.sqlite

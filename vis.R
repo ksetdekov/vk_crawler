@@ -19,10 +19,12 @@ steps <- steps %>% rename(region = name, value = steps)
 match <- read.xlsx("match.xlsx")
 steps$region
 
-for(i in seq_along(match$from)) steps$region <- gsub(match$from[i], match$to[i], steps$region, fixed = TRUE)
-steps <- steps[complete.cases(steps),]
+for(i in 1:185){
+    steps[steps$region==match$from[i] & is.na(steps$region)==FALSE,1] <- match$to[i]
+}
 
-plotdata <- steps[,]
+plotdata <- steps[complete.cases(steps),]
+
 country_choropleth(plotdata, num_colors = 9) +
         scale_fill_brewer(palette = "YlOrRd") +
         labs(

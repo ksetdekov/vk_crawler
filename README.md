@@ -2,7 +2,20 @@
 Tool to collect data for analysis about friends from open public data of social network http://vk.com/
 
 
+# Results
+This is a current handshake plot for me.
 
+![Handshake_image](img/handshakes.png)
+
+#### Additional comments:
+* Not all countries are covered;
+* I was not able to output some small French and Chinese territories on the map;
+* definition of a handshake: 1 handshake = we are friends, 2 handshakes = a person is a friend of my friend, so on ...
+* I was more strict with country codes - a person got a True country code, which is the highest frequency 
+country code from all friends.
+* Searched with breadth-first search for shortest route.
+
+# Explaination
 * This Crawler starts from one ID and pull all the friends of this person in a JSON response using the official API.
     * One must create their own hidden.py file, that contains a valid API token in a format:
     `token = 'token_string' `
@@ -38,17 +51,3 @@ from_id | to_id
 1 | 5
 1 | 6
 1 | 7
-
-
-# Results
-This is a current handshake plot.
-
-![Handshake_image](img/handshakes.png)
-
-#### Additional comments:
-* Not all countries are covered;
-* I was not able to output some small French and Chinese territories on the map;
-* definition of a handshake: 1 handshake = we are friends, 2 handshakes = a person is a friend of my friend, so on ...
-* I was more strict with country codes - a person got a True country code, which is the highest frequency 
-country code from all friends.
-* Searched with breadth-first search for shortest route.

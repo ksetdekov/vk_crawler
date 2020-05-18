@@ -24,12 +24,14 @@ for(i in 1:185){
 }
 
 plotdata <- steps[complete.cases(steps),]
-
+plotdata$value <- as.factor(plotdata$value)
+png('img/handshakes.png', width = 1280, height = 720, units = "px", pointsize = 18, antialias = "cleartype")
 country_choropleth(plotdata, num_colors = 9) +
-        scale_fill_brewer(palette = "YlOrRd") +
+        scale_fill_brewer(palette = "RdBu") +
         labs(
-                title = "Number of handshakes from me to a country",
-                subtitle = "VK data, @k",
-                caption = "source: Vk.com data by @ksetdekov",
+                title = "Number of handshakes from me to a native",
+                subtitle = "person is native if most friends are from same country",
+                caption = "source: public Vk.com data by @ksetdekov",
                 fill = "Handshakes"
         )
+dev.off()

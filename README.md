@@ -29,8 +29,8 @@ country code from all friends.
 1. For it to work, ir requires an App to be created inside a Developer section of the website https://vk.com/dev and https://vk.com/apps?act=manage
 2. How I received an authorisation token  https://oauth.vk.com/authorize?client_id=IDприложения&scope=friends,offline&redirect_uri=https://oauth.vk.com/blank.html&display=page&v=5.21&response_type=token
 3. One of the guides I used  https://habr.com/ru/post/221251/
-4. todo - use a guide https://ramiro.org/notebook/basemap-choropleth/
-5. data in clean.py, accessed as query:
+4. Future todo - use a guide to make plot in Python, not in R https://ramiro.org/notebook/basemap-choropleth/
+5. Final results are in clean.sqlite, accessed as query:
 
 ```
 SELECT name, steps FROM Countries JOIN Steps on Countries.id = Steps.id ORDER by steps
